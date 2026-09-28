@@ -1,8 +1,7 @@
-// ABSTRAÇÃO: Conta é abstrata. Define o que toda conta tem e faz,
-// mas deixa o cálculo da taxa para cada tipo de conta.
+// ABSTRAÇÃO: classe abstrata, não pode ser instanciada diretamente.
 abstract class Conta {
 
-    // ENCAPSULAMENTO: atributos privados, só acessíveis pelos métodos da classe.
+    // ENCAPSULAMENTO: atributos privados, inacessíveis fora da classe.
     private final String titular;
     private double saldo;
 
@@ -10,6 +9,7 @@ abstract class Conta {
         this.titular = titular;
     }
 
+    // ENCAPSULAMENTO: acesso somente leitura via getters (não há setters).
     public String getTitular() {
         return titular;
     }
@@ -18,6 +18,7 @@ abstract class Conta {
         return saldo;
     }
 
+    // ENCAPSULAMENTO: o saldo só muda por métodos que validam a operação.
     public void depositar(double valor) {
         if (valor <= 0) {
             throw new IllegalArgumentException("Depósito deve ser positivo.");
@@ -33,30 +34,33 @@ abstract class Conta {
         saldo -= total;
     }
 
-    // Método abstrato: cada subclasse é obrigada a implementar.
+    // ABSTRAÇÃO: método sem implementação, cada subclasse é obrigada a definir.
     protected abstract double taxaDeSaque();
 }
 
-// HERANÇA: ContaCorrente reaproveita tudo de Conta (extends).
-// POLIMORFISMO: cada subclasse implementa taxaDeSaque() do seu jeito.
+// HERANÇA: ContaCorrente herda atributos e métodos de Conta.
 class ContaCorrente extends Conta {
 
+    // HERANÇA: super repassa o titular para o construtor da classe mãe.
     public ContaCorrente(String titular) {
         super(titular);
     }
 
+    // POLIMORFISMO: sobrescreve taxaDeSaque com a regra da conta corrente.
     @Override
     protected double taxaDeSaque() {
         return 2.50;
     }
 }
 
+// HERANÇA: ContaPoupanca também herda de Conta.
 class ContaPoupanca extends Conta {
 
     public ContaPoupanca(String titular) {
         super(titular);
     }
 
+    // POLIMORFISMO: mesma assinatura, comportamento diferente (sem taxa).
     @Override
     protected double taxaDeSaque() {
         return 0;
@@ -65,7 +69,7 @@ class ContaPoupanca extends Conta {
 
 public class Main {
     public static void main(String[] args) {
-        // O tipo da variável é Conta, mas o objeto criado é o específico.
+        // POLIMORFISMO: variável do tipo Conta guarda objetos de subclasses.
         Conta[] contas = {
             new ContaCorrente("Ana"),
             new ContaPoupanca("Bruno")
@@ -73,7 +77,8 @@ public class Main {
 
         for (Conta conta : contas) {
             conta.depositar(100);
-            conta.sacar(50); // mesma chamada, comportamento diferente
+            // POLIMORFISMO: mesma chamada, cada objeto aplica sua própria taxa.
+            conta.sacar(50);
             System.out.printf("%s (%s): saldo R$ %.2f%n",
                 conta.getTitular(), conta.getClass().getSimpleName(), conta.getSaldo());
         }

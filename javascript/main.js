@@ -1,21 +1,22 @@
-// ABSTRAÇÃO: Conta é abstrata. Define o que toda conta tem e faz,
-// mas deixa o cálculo da taxa para cada tipo de conta.
+// ABSTRAÇÃO: Conta representa o conceito geral de conta, sem ser usada diretamente.
 class Conta {
-  // ENCAPSULAMENTO: o "#" torna o atributo privado.
+  // ENCAPSULAMENTO: o "#" torna o campo privado de verdade.
   #saldo = 0;
 
   constructor(titular) {
-    // JavaScript não tem "abstract": impedimos a instância direta manualmente.
+    // ABSTRAÇÃO: JS não tem "abstract", então bloqueamos a instância direta.
     if (new.target === Conta) {
       throw new Error("Conta é abstrata e não pode ser instanciada.");
     }
     this.titular = titular;
   }
 
+  // ENCAPSULAMENTO: getter sem setter, o saldo é somente leitura.
   get saldo() {
-    return this.#saldo; // somente leitura: não existe setter
+    return this.#saldo;
   }
 
+  // ENCAPSULAMENTO: o saldo só muda por métodos que validam a operação.
   depositar(valor) {
     if (valor <= 0) {
       throw new Error("Depósito deve ser positivo.");
@@ -31,21 +32,23 @@ class Conta {
     this.#saldo -= total;
   }
 
-  // Método "abstrato": cada subclasse deve sobrescrever.
+  // ABSTRAÇÃO: método "abstrato", as subclasses devem sobrescrever.
   taxaDeSaque() {
     throw new Error("Subclasse deve implementar taxaDeSaque().");
   }
 }
 
-// HERANÇA: ContaCorrente reaproveita tudo de Conta (extends).
-// POLIMORFISMO: cada subclasse implementa taxaDeSaque() do seu jeito.
+// HERANÇA: ContaCorrente herda tudo de Conta (inclusive o construtor).
 class ContaCorrente extends Conta {
+  // POLIMORFISMO: sobrescreve taxaDeSaque com a regra da conta corrente.
   taxaDeSaque() {
     return 2.5;
   }
 }
 
+// HERANÇA: ContaPoupanca também herda de Conta.
 class ContaPoupanca extends Conta {
+  // POLIMORFISMO: mesmo método, comportamento diferente (sem taxa).
   taxaDeSaque() {
     return 0;
   }
@@ -55,7 +58,8 @@ const contas = [new ContaCorrente("Ana"), new ContaPoupanca("Bruno")];
 
 for (const conta of contas) {
   conta.depositar(100);
-  conta.sacar(50); // mesma chamada, comportamento diferente
+  // POLIMORFISMO: mesma chamada, cada objeto aplica sua própria taxa.
+  conta.sacar(50);
   console.log(
     `${conta.titular} (${conta.constructor.name}): saldo R$ ${conta.saldo.toFixed(2)}`
   );
